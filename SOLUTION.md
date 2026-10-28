@@ -72,14 +72,14 @@ flowchart TD
         SYS1_IN2 --> SYS1_OUT
     end
 
-    SYS1_OUT -->|"RCA to Dual 1/4&quot; TS"| SCARLETT_IN["Focusrite Scarlett 2i2 (Inputs 1 & 2)"]
+    SYS1_OUT -->|"RCA to Dual 1/4-inch TS"| SCARLETT_IN["Focusrite Scarlett 2i2 (Inputs 1 & 2)"]
 
     subgraph REC ["Always-On Recorder (brotherlogic/recorder)"]
         SCARLETT_IN -->|"ADC (scarlett_2ch)"| ARECORD["brotherlogic/recorder (Always Recording)"]
         SCARLETT_IN -->|"Direct Monitor (Stereo)"| SCARLETT_OUT["Rear Line Outputs 1 & 2 (L/R)"]
     end
 
-    SCARLETT_OUT -->|"Dual 1/4&quot; TS to RCA"| SPLIT["RCA Splitter (Buffered Line Level)"]
+    SCARLETT_OUT -->|"Dual 1/4-inch TS to RCA"| SPLIT["RCA Splitter (Buffered Line Level)"]
 
     SPLIT -->|"Branch A (Always On)"| SONOS["Sonos Port (RCA Audio In - Always Broadcasting)"]
     SPLIT -->|"Branch B"| SYS2_IN1["Schiit Sys #2 (IN 1: Headphones ON)"]
@@ -91,11 +91,18 @@ flowchart TD
     end
 
     SYS2_OUT -->|Stereo RCA| VALHALLA["Schiit Valhalla (RCA In)"]
-    VALHALLA -->|"Front 1/4&quot; Headphone Jack"| HP["Headphones (Permanently Plugged In)"]
+    VALHALLA -->|"Front 1/4-inch Headphone Jack"| HP["Headphones (Permanently Plugged In)"]
 ```
 
-### Why Splitting Here Does Not Change Gain
-In your old setup, the RCA splitter was on the Valhalla's tube output driving low-impedance headphones ($32\text{--}300\text{ }\Omega$). Here, the splitter sits on the Scarlett's actively buffered solid-state line output ($\sim 100\text{ }\Omega$) and drives two **high-impedance line inputs** (`Sonos Port` $\sim 20\text{ k}\Omega$ and `Valhalla RCA In` $50\text{ k}\Omega$). Toggling `Schiit Sys #2` on or off changes the load on the Scarlett's line buffer by less than **$0.02\text{ dB}$** (completely inaudible), and `brotherlogic/recorder` captures from the ADC *upstream* of the split so recording gain is $100\%$ untouched.
+### Why Splitting Here Does Not Change Gain (and Why Sonos Volume Stays Full)
+1. **No Low-Impedance Loading:** In your old setup, the RCA splitter was on the Valhalla's tube output driving low-impedance headphones ($32\text{--}300\text{ }\Omega$). That heavy load dragged down the voltage on the RCA line, making it seem like the Valhalla had to be cranked up to feed the rest of the chain. Here, the splitter sits on the Scarlett's actively buffered solid-state line output ($\sim 100\text{ }\Omega$) and drives two **high-impedance line inputs** (`Sonos Port` $\sim 20\text{ k}\Omega$ and `Valhalla RCA In` $50\text{ k}\Omega$). Toggling `Schiit Sys #2` on or off changes the load on the Scarlett's line buffer by less than **$0.02\text{ dB}$** (completely inaudible), and `brotherlogic/recorder` captures from the ADC *upstream* of the split so recording gain is $100\%$ untouched.
+2. **Plenty of Line Level Without the Valhalla:**
+   - Your **Turntable Preamp** and **Tape Player** already output standard consumer line level ($\sim 0.5\text{--}2.0\text{ V}_{\text{rms}}$), and `Schiit Sys #1` at 100% volume passes that at unity gain ($0\text{ dB}$ loss).
+   - In your previous topology (`Valhalla -> Scarlett -> Sonos`), **the Scarlett 2i2 was already what drove the Sonos Port**. The Scarlett is an active audio interface with its own input preamps and active line output stage (capable of up to $+10\text{ dBu} \approx 2.45\text{ V}_{\text{rms}}$ unbalanced out—hotter than standard consumer RCA line level).
+   - If Sonos ever needs more or less level, you have three independent places to trim it without touching headphone volume:
+     1. **Scarlett Input 1 & 2 Gain Knobs** (sets recording level for `brotherlogic/recorder` and feeds the Direct Monitor bus).
+     2. **Scarlett Front `Monitor` Knob** (controls the output level of Rear Line Outputs 1 & 2 feeding Sonos and the Valhalla).
+     3. **Sonos App `Source Level` Setting** (`Settings -> System -> Sonos Port -> Source Level`, adjustable from Level 1 to Level 10).
 
 > [!TIP]
 > **Splitter-Free Alternative Using the Scarlett's Front `1/4"` Jack:**
